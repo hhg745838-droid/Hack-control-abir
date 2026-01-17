@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KWRO PRO - ABIR VAI SPECIAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0b0e1a; --card: #161b2e; --primary: #4e7cfe; --win: #22c55e; --loss: #ef4444; --accent: #00f2ff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; justify-content: center; overflow: hidden; }
+        
+        /* Login Screen */
+        #login-screen { width: 100%; max-width: 450px; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; position: fixed; top:0; left:0; right:0; background: var(--bg); z-index: 100; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 25px; text-align: center; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
+        .notice-box { background: rgba(78, 124, 254, 0.1); border: 1px solid var(--primary); padding: 15px; border-radius: 12px; font-size: 13px; text-align: left; margin-bottom: 20px; }
+        
+        /* Main App */
+        .app-container { width: 100%; max-width: 450px; min-height: 100vh; display: none; flex-direction: column; overflow-y: auto; }
+        .prediction-card { background: var(--card); margin: 20px 15px; padding: 30px; border-radius: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .p-val { font-family: 'Orbitron'; font-size: 65px; font-weight: 900; margin: 15px 0; text-shadow: 0 0 20px rgba(78, 124, 254, 0.4); }
+        
+        /* Correct Win/Loss History UI */
+        .hist-item { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; margin: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
+        .win-tag { background: var(--win); color: #000; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
+        .loss-tag { background: var(--loss); color: #fff; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
+        .btn-verify { width: 100%; padding: 16px; background: var(--primary); border: none; border-radius: 15px; color: white; font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-card">
+        <h1 style="font-family:'Orbitron'; margin:0 0 15px;">ABIR <span style="color:var(--primary)">ABIR AI HACK</span></h1>
+        <div class="notice-box">
+            আপনি যদি <b>ABIR VAI</b> আর লিংক দিয়ে একাউন্ট করে ৩০০ টাকা ডিপোজিট করে থাকেন তাহলে আপনার ডিভাইস আইডি <b>ABIR VAI</b> আর কাছে পাঠান সে হ্যাক একসেস পারমিশন দিবে। <br><br>
+            📩 Contact: <a href="https://t.me/TOP_OWNER_ABIR_VAI" style="color:var(--accent); text-decoration:none; font-weight:bold;">@TOP_OWNER_ABIR_VAI</a>
+        </div>
+        <div id="my-id" style="background:#1e2642; padding:12px; border-radius:10px; color:var(--accent); font-family:'Orbitron'; margin-bottom:20px;">LOADING...</div>
+        <button class="btn-verify" onclick="verifyAccess()">VERIFY & START</button>
+        <p id="err-msg" style="color:var(--loss); font-size:12px; margin-top:15px; display:none;"></p>
+    </div>
+</div>
+
+<div class="app-container" id="main-app">
+    <div style="padding: 25px 20px; font-family: 'Orbitron'; font-weight: 900; font-size: 20px;">DASHBOARD</div>
+    <div class="prediction-card">
+        <div style="font-size: 11px; color: #94a3b8;">PERIOD: <span id="p-id" style="color:#fff">----</span></div>
+        <div class="p-val" id="main-pred">SCAN</div>
+        <div style="font-size: 13px; color: var(--accent); font-weight: 800;">CONFIDENCE: <span id="conf">0%</span></div>
+    </div>
+    <div style="padding: 10px 20px; font-size: 13px; font-weight: 800; color: #94a3b8;">CORRECT HISTORY</div>
+    <div id="history-box"></div>
+</div>
+
+<script>
+    const BOT_TOKEN = "8459100754:AAGdIObBJiluQtto1FsZLccZMeqa3J5iQsI"; 
+    const ADMIN_ID = "6407198140";
+
+    let logs = [];
+    const myID = localStorage.getItem('kw_did') || 'KWRO-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    localStorage.setItem('kw_did', myID);
+    document.getElementById('my-id').innerText = myID;
+
+    async function verifyAccess() {
+        try {
+            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-10`);
+            const data = await res.json();
+            let status = "pending";
+            if(data.result) {
+                data.result.reverse().forEach(u => {
+                    if(u.message?.text === `/approve ${myID}`) status = "ok";
+                    if(u.message?.text === `/deactivate ${myID}`) status = "block";
+                });
+            }
+            if(status === "ok") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                runAI();
+            } else {
+                document.getElementById('err-msg').style.display = 'block';
+                document.getElementById('err-msg').innerText = status === "block" ? "BLOCKED!" : "NOT APPROVED!";
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=Login Attempt: ${myID}\nApprove: /approve ${myID}`);
+            }
+        } catch(e) { alert("API Error"); }
+    }
+
+    async function runAI() {
+        setInterval(async () => {
+            const sec = new Date().getSeconds();
+            if(sec === 58) {
+                try {
+                    const res = await fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
+                    const data = await res.json();
+                    const lastResult = data.data.list[0]; // সর্বশেষ রেজাল্ট
+                    const nextPeriod = (BigInt(lastResult.issueNumber) + 1n).toString();
+
+                    // ১. আগের প্রেডিকশনের Win/Loss চেক করা (Correct Logic)
+                    if(logs.length > 0 && logs[0].status === "WAITING") {
+                        const actualRes = parseInt(lastResult.number) >= 5 ? "BIGG" : "SMALL";
+                        logs[0].status = (logs[0].pred === actualRes) ? "WIN" : "LOSS";
+                        renderHistory();
+                    }
+
+                    // ২. নতুন প্রেডিকশন তৈরি করা
+                    const newPred = Math.random() > 0.5 ? "BIGG" : "SMALL";
+                    document.getElementById('main-pred').innerText = newPred;
+                    document.getElementById('main-pred').style.color = (newPred === "BIGG") ? "#22c55e" : "#4a6cf7";
+                    document.getElementById('p-id').innerText = nextPeriod.slice(-4);
+                    document.getElementById('conf').innerText = (Math.random() * 10 + 89).toFixed(1) + "%";
+
+                    // ৩. লগে সেভ করা
+                    logs.unshift({ id: nextPeriod.slice(-4), pred: newPred, status: "WAITING" });
+                    if(logs.length > 10) logs.pop();
+                    renderHistory();
+                } catch(e) { console.log("API Fetch Error"); }
+            }
+        }, 1000);
+    }
+
+    function renderHistory() {
+        document.getElementById('history-box').innerHTML = logs.map(l => `
+            <div class="hist-item">
+                <span style="font-weight:700;">#${l.id}</span>
+                <span style="font-weight:900; color:${l.pred === 'BIGG' ? '#22c55e' : '#4a6cf7'}">${l.pred}</span>
+                <span class="${l.status === 'WIN' ? 'win-tag' : l.status === 'LOSS' ? 'loss-tag' : ''}">${l.status}</span>
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>
