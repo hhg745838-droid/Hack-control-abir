@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KWRO PRO - ADMIN CONTROL</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .btn-ok { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-no { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-left: 5px; }
+        .status { font-size: 12px; color: #94a3b8; }
+    </style>
+</head>
+<body style="display:none;" id="admin-body">
+    <h2 style="color:#00f2ff">🚀 USER MANAGER PANEL</h2>
+    <div id="list">Loading Users...</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+<script>
+    let pass = prompt("Enter Admin Password:");
+    if(pass === "admin786") { // আপনার পাসওয়ার্ড এখানে সেট করুন
+        document.getElementById('admin-body').style.display = 'block';
+    } else {
+        alert("Wrong Access!");
+        window.location.href = "index.html";
+    }
+
+    const firebaseConfig = { /* সেইম কনফিগ এখানে দিন */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    db.ref('users').on('value', (s) => {
+        const users = s.val();
+        let html = '';
+        for (let id in users) {
+            html += `<div class="card">
+                <div>
+                    <strong>${id}</strong><br>
+                    <span class="status">Status: ${users[id].status} | ${users[id].date}</span>
+                </div>
+                <div>
+                    <button class="btn-ok" onclick="up('${id}','active')">APPROVE</button>
+                    <button class="btn-no" onclick="up('${id}','blocked')">BLOCK</button>
+                </div>
+            </div>`;
+        }
+        document.getElementById('list').innerHTML = html;
+    });
+
+    function up(id, status) { db.ref('users/' + id).update({ status: status }); }
+</script>
+</body>
+</html>
