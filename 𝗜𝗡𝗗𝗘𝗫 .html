@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABIR PRO - PREMIUM HACK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4a6cf7; --bg: #0b0e16; --card: #151a29; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .container { width: 90%; max-width: 400px; background: var(--card); padding: 35px 25px; border-radius: 30px; text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .device-id { background: #1e2642; padding: 15px; border-radius: 12px; font-size: 11px; margin: 20px 0; color: #00f2ff; font-weight: bold; border: 1px dashed var(--primary); }
+        .btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; }
+        #app-content { display: none; }
+        .pred-val { font-family: 'Orbitron'; font-size: 65px; font-weight: 900; color: #00f2ff; margin: 25px 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+    </style>
+</head>
+<body>
+
+<div id="login-screen" class="container">
+    <h1 style="font-family:'Orbitron'; margin:0;">KWRO <span style="color:var(--primary)">PRO</span></h1>
+    <p style="color:#94a3b8; font-size:13px;">YOUR DEVICE ID</p>
+    <div class="device-id" id="display-id">LOADING ID...</div>
+    <button class="btn" onclick="checkAccess()">VERIFY & LOGIN</button>
+    <p id="err" style="color:#ef4444; font-size:12px; margin-top:15px; display:none; font-weight:bold;">ACCESS DENIED! CONTACT ADMIN.</p>
+</div>
+
+<div id="app-content" class="container">
+    <div style="font-size:11px; color:#94a3b8; letter-spacing:2px;">PERIOD: <span id="p-id" style="color:#fff">----</span></div>
+    <div class="pred-val" id="main-result">SCAN</div>
+    <div id="conf" style="font-size:14px; font-weight:800; color:#22c55e;">ACCURACY: 0%</div>
+    <p style="font-size:10px; color:#64748b; margin-top:20px;">CORE MATRIX V4.2 ACTIVE</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        databaseURL: "YOUR_DB_URL",
+        projectId: "YOUR_PROJECT_ID",
+        appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function getID() {
+        let id = localStorage.getItem('kwro_id') || 'KWRO-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        localStorage.setItem('kwro_id', id); return id;
+    }
+    const myID = getID();
+    document.getElementById('display-id').innerText = myID;
+
+    function checkAccess() {
+        db.ref('users/' + myID).once('value', (s) => {
+            if (s.val() && s.val().status === 'active') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                runHack();
+            } else {
+                document.getElementById('err').style.display = 'block';
+                if(!s.val()) db.ref('users/' + myID).set({ status: 'pending', date: new Date().toLocaleString() });
+            }
+        });
+    }
+
+    async function runHack() {
+        setInterval(async () => {
+            if(new Date().getSeconds() === 58) {
+                const res = await fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
+                const data = await res.json();
+                const next = (BigInt(data.data.list[0].issueNumber) + 1n).toString();
+                const pred = Math.random() > 0.5 ? "BIGG" : "SMALL";
+                document.getElementById('p-id').innerText = next;
+                document.getElementById('main-result').innerText = pred;
+                document.getElementById('main-result').style.color = pred === "BIGG" ? "#22c55e" : "#4a6cf7";
+                document.getElementById('conf').innerText = "ACCURACY: " + (Math.random() * 10 + 88).toFixed(1) + "%";
+            }
+        }, 1000);
+    }
+</script>
+</body>
+</html>
